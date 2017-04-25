@@ -1,0 +1,133 @@
+---
+title: "R-club-Apr-26"
+author: "Chunmei Li"
+date: "042417"
+output: 
+  html_document: 
+    keep_md: yes
+---
+#install.packages
+```{r}
+#learning ggplot2
+#install.packages("tidyverse")
+library(tidyverse)
+#use data frame mpg
+mpg
+?mpg
+ggplot(data = mpg) +geom_point(mapping = aes(x = displ, y = hwy))
+```
+#graphing template
+#ggplot(data = <DATA>) + <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
+#exercise
+#run
+```{r}
+ggplot(data = mpg)#empty plots
+mtcars
+nrow(mtcars)#32 rows
+ncol(mtcars)#11 colums
+?mpg#`drv` describe "f = front-wheel drive, r = rear wheel drive, 4 = 4wd"
+#scatterplot of `cty` vs `hwy`
+ggplot(data = mpg) +geom_point(mapping = aes(x = cty, y = hwy))
+#scatterplot of `class` vs `drv`
+ggplot(data = mpg) +geom_point(mapping = aes(x = class, y = drv))# because `class` and `drv` are not continuous variables.
+```
+#the differences by using color, size, alpha, shape
+```{r}
+ggplot(data = mpg) + geom_point(mapping = aes(x = displ, y = hwy, color = class))
+ggplot(data = mpg) + geom_point(mapping = aes(x = displ, y = hwy, size = class))
+#transparency
+ggplot(data = mpg) + geom_point(mapping = aes(x = displ, y = hwy, alpha = class))
+#shape
+ggplot(data = mpg) + geom_point(mapping = aes(x = displ, y = hwy, shape = class))
+ggplot(data = mpg) + geom_point(mapping = aes(x = displ, y = hwy), color = "blue")
+```
+#Exersize 1
+```{r}
+ggplot(data = mpg) + geom_point(mapping = aes(x = displ, y = hwy, color = "blue"))
+#because to set an aesthetic manually, we should set the aesthetic by name as an argument of geom function, not inside of `aes()`
+```
+#2 manufacturer, model, trans, drv, fl, year and class are categorical, cyl, cty, and hwy are continuous. when the classify of variables is `chr`, the variables are categorical, and when the classify of variable is `int`, `dbl`, or `dbl`, the variables are continous.
+#3 
+```{r}
+ggplot(data = mpg) + geom_point(mapping = aes(x = displ, y = hwy, color = cty))
+ggplot(data = mpg) + geom_point(mapping = aes(x = displ, y = hwy, size = cty))
+ggplot(data = mpg) + geom_point(mapping = aes(x = displ, y = hwy, shape = cty))
+#`color` and `size` can be used for mapping continous variable with graduated color or size, but `shape` can not be used for mapping continous variable.
+
+```
+#4 
+```{r}
+ggplot(data = mpg) + geom_point(mapping = aes(x = class, y = hwy, size = class))
+ggplot(data = mpg) + geom_point(mapping = aes(x = displ, y = hwy, color = displ))
+ggplot(data = mpg) + geom_point(mapping = aes(x = class, y = hwy, color = class))
+# it seems that it doesn't matter??? no new information can be revealed
+
+```
+#5
+```{r}
+?geom_point#`stroke` is used to modify the width of the border and works with the shapes with border.
+```
+#6
+```{r}
+ggplot(data = mpg) + geom_point(mapping = aes(x = displ, y = hwy, color = cty < 20))
+# the plots will be divided into 2 logical groups by 2 different colors.
+```
+
+#3.5
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_wrap(~ class, nrow = 2)
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(drv ~ cyl)
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(. ~ cyl)
+```
+#3.5.1 Exercise
+#1
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(. ~ cty)
+#plots would be faceted into many grids or wraps.
+```
+#2
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_grid(drv ~ cyl)#the empty cells mean no data was recorded under this combination of `drv` and `cyl`.
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = drv, y = cyl))# the empty cells above are corresponding to the empty plots in this plot.
+```
+#3
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(drv ~ .)#plot the relationship between `displ` and `hwy` in each `drv` displayed by rows.
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(. ~ cyl)#plot the relationship between `displ` and `hwy` in each `cyl` displayed by columns.
+
+#`.` means columns or rows are not defined.
+
+```
+#4 
+```{r}
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  facet_wrap(~ class, nrow = 2)
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy, color=class))
+# the relationship between `displ` and `hwy` in each `class` would be more clear, but the whole relationship between `displ` and `hwy` is not clear.
+```
+#5
+```{r}
+?facet_wrap#Number of rows and columns.`as.table` also control the layout of the individual lanes
+?facet_grid#number of rows and columns depend on the variables in dataset.
+```
+#6
+while using `facet_grid()`, if put the variables with less unique levels, the plots would be faceted into many grids, it would not be useful for analyzing.
+
