@@ -120,10 +120,59 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
 
 
 ```r
-#ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
-  #geom_point(mapping = aes(color = class)) + 
-  #geom_smooth(data = filter(mpg, class == "subcompact"), se = FALSE)
+library(tidyverse)
+```
 
+```
+## Warning: package 'tidyverse' was built under R version 3.3.3
+```
+
+```
+## Loading tidyverse: tibble
+## Loading tidyverse: tidyr
+## Loading tidyverse: readr
+## Loading tidyverse: purrr
+## Loading tidyverse: dplyr
+```
+
+```
+## Warning: package 'tidyr' was built under R version 3.3.3
+```
+
+```
+## Warning: package 'readr' was built under R version 3.3.3
+```
+
+```
+## Warning: package 'purrr' was built under R version 3.3.3
+```
+
+```
+## Warning: package 'dplyr' was built under R version 3.3.3
+```
+
+```
+## Conflicts with tidy packages ----------------------------------------------
+```
+
+```
+## filter(): dplyr, stats
+## lag():    dplyr, stats
+```
+
+```r
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = class)) + 
+  geom_smooth(data = filter(mpg, class == "subcompact"), se = FALSE)
+```
+
+```
+## `geom_smooth()` using method = 'loess'
+```
+
+![](R-club-May-3_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+
+```r
 # why I can't get this plot??
 ```
 
@@ -191,7 +240,7 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv), show.legend=F
 ![](R-club-May-3_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
 
 ```r
-#remove show.legend=FALSE
+#remove show.legend=FALSE ? why I didn't see difference. show.legend=FALSE romove the legend of graph
 ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) + 
   geom_point() + 
   geom_smooth()
@@ -311,7 +360,11 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
 
 ```r
 #don't know
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(aes(color=drv),size=5, shape=21)
 ```
+
+![](R-club-May-3_files/figure-html/unnamed-chunk-11-7.png)<!-- -->
 
 3.7
 
@@ -333,9 +386,9 @@ ggplot(data = diamonds) +
 
 
 ```r
-#can't install packages
-#install.packages("tribble", repos='http://cran.us.r-project.org')
-#library(tribble)
+#can't install packages, can install now
+#install.packages("tibble")
+#library(tibble)
 #demo <- tribble(
  # ~a,      ~b,
   #"bar_1", 20,
@@ -344,7 +397,7 @@ ggplot(data = diamonds) +
 #)
 
 #ggplot(data = demo) +
- # geom_bar(mapping = aes(x = a, y = b), stat = "identity")
+ #geom_bar(mapping = aes(x = a, y = b), stat = "identity")
 ```
 
 
@@ -555,6 +608,17 @@ library(maps)
 ## Warning: package 'maps' was built under R version 3.3.3
 ```
 
+```
+## 
+## Attaching package: 'maps'
+```
+
+```
+## The following object is masked from 'package:purrr':
+## 
+##     map
+```
+
 ```r
 nz <- map_data("nz")
 
@@ -665,47 +729,7 @@ ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
 
 ```r
 library(tidyverse)
-```
 
-```
-## Warning: package 'tidyverse' was built under R version 3.3.3
-```
-
-```
-## Loading tidyverse: tibble
-## Loading tidyverse: tidyr
-## Loading tidyverse: readr
-## Loading tidyverse: purrr
-## Loading tidyverse: dplyr
-```
-
-```
-## Warning: package 'tidyr' was built under R version 3.3.3
-```
-
-```
-## Warning: package 'readr' was built under R version 3.3.3
-```
-
-```
-## Warning: package 'purrr' was built under R version 3.3.3
-```
-
-```
-## Warning: package 'dplyr' was built under R version 3.3.3
-```
-
-```
-## Conflicts with tidy packages ----------------------------------------------
-```
-
-```
-## filter(): dplyr, stats
-## lag():    dplyr, stats
-## map():    purrr, maps
-```
-
-```r
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy))
 ```

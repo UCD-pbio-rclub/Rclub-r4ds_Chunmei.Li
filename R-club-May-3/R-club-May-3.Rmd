@@ -56,9 +56,10 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
 ```
 
 ```{r}
-#ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
-  #geom_point(mapping = aes(color = class)) + 
-  #geom_smooth(data = filter(mpg, class == "subcompact"), se = FALSE)
+library(tidyverse)
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(mapping = aes(color = class)) + 
+  geom_smooth(data = filter(mpg, class == "subcompact"), se = FALSE)
 
 # why I can't get this plot??
 
@@ -91,7 +92,7 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv), show.legend=F
   geom_point() + 
   geom_smooth(se = FALSE)
 
-#remove show.legend=FALSE
+#remove show.legend=FALSE ? why I didn't see difference. show.legend=FALSE romove the legend of graph
 ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) + 
   geom_point() + 
   geom_smooth()
@@ -134,6 +135,8 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
   geom_smooth(aes(linetype=drv), se=F, size=3)
 
 #don't know
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point(aes(color=drv),size=5, shape=21)
 ```
 
 3.7
@@ -150,9 +153,9 @@ ggplot(data = diamonds) +
 
 ```{r}
 
-#can't install packages
-#install.packages("tribble", repos='http://cran.us.r-project.org')
-#library(tribble)
+#can't install packages, can install now
+#install.packages("tibble")
+#library(tibble)
 #demo <- tribble(
  # ~a,      ~b,
   #"bar_1", 20,
@@ -161,7 +164,7 @@ ggplot(data = diamonds) +
 #)
 
 #ggplot(data = demo) +
- # geom_bar(mapping = aes(x = a, y = b), stat = "identity")
+ #geom_bar(mapping = aes(x = a, y = b), stat = "identity")
 ```
 
 ```{r}
