@@ -6,4 +6,304 @@ output:
   html_document: 
     keep_md: yes
 ---
+5.1.1 prerequisites
+```{r}
+#install.packages("nycflights13")
+library(nycflights13)
+library(tidyverse)
+```
+5.2
+```{r}
+flights #time_hour is not dttm
+```
+```{r}
+filter(flights, month == 1, day == 1)
+jan1 <- filter(flights, month == 1, day == 1)
+(dec25 <- filter(flights, month == 12, day == 25)) #save and print the filterred result
+```
+5.2.1
+```{r}
+#filter(flights, month = 1)
+```
+
+```{r}
+sqrt(2) ^ 2 == 2
+
+1/49 * 49 == 1
+#can’t store an infinite number of digits!
+```
+```{r}
+# use near to compare
+near(sqrt(2) ^ 2,  2)
+
+near(1 / 49 * 49, 1)
+```
+```{r}
+filter(flights, month == 11 | month == 12) #don't use filter(flights, month == 11 | 12) to find Nov or Dec
+```
+
+```{r}
+nov_dec <- filter(flights, month %in% c(11, 12))
+```
+
+```{r}
+filter(flights, !(arr_delay > 120 | dep_delay > 120))
+filter(flights, arr_delay <= 120, dep_delay <= 120)
+
+#how about filter(flights, arr_delay <= 120 & dep_delay <= 120)
+```
+```{r}
+NA > 5
+
+10 == NA
+
+NA + 10
+
+NA / 2
+
+NA == NA
+
+# Let x be Mary's age. We don't know how old she is.
+x <- NA
+
+# Let y be John's age. We don't know how old he is.
+y <- NA
+
+# Are John and Mary the same age?
+x == y
+
+# We don't know!
+
+# use is.na to determine if a value is missing
+is.na(x)
+
+
+```
+
+```{r}
+df <- tibble(x = c(1, NA, 3))
+filter(df, x > 1)
+
+filter(df, is.na(x) | x > 1)
+
+```
+
+5.2.4 Exercise
+1.
+```{r}
+#Had an arrival delay of two or more hours
+filter(flights, arr_delay >= 120 | dep_delay >= 120)
+#Flew to Houston (IAH or HOU)
+filter(flights, dest == "IAH" | dest == "HOU")
+#Were operated by United, American, or Delta
+filter(flights, carrier == "UA" | carrier == "AA" | carrier == "DA")
+#Departed in summer (July, August, and September)
+filter(flights, month == 7 | month == 8 | month == 9)
+#Arrived more than two hours late, but didn’t leave late
+filter(flights, dep_delay <= 0 & arr_delay > 120)
+#Were delayed by at least an hour, but made up over 30 minutes in flight
+filter(flights, dep_delay >= 60 &  dep_delay - arr_delay > 30)
+#Departed between midnight and 6am (inclusive)
+filter(flights, dep_time>=00 & dep_time <= 0600)
+
+```
+2.
+```{r}
+?between()
+filter(flights, between(dep_time,0,600))
+```
+3.
+```{r}
+sum(is.na(flights$dep_time))
+filter(flights, is.na(dep_time))# dep_delay, arr_time, and arr_delay are missing. these rows might present the flights cancelled.
+
+```
+4.
+```{r}
+is.na(NA^0)
+is.na(NA|TRUE)# because NA|TRUE is TRUE
+is.na(FALSE&NA)
+is.na(NA*0)
+```
+5.3
+```{r}
+arrange(flights, year, month, day)
+```
+
+```{r}
+arrange(flights, desc(arr_delay))
+```
+
+```{r}
+# NA always at the end
+df <- tibble(x = c(5, 2, NA))
+arrange(df, x)
+arrange(df, desc(x))
+```
+5.3.1 Exercise
+```{r}
+#1. How could you use arrange() to sort all missing values to the start? (Hint: use is.na()).
+arrange(df, desc(is.na(x)), x)
+arrange(flights, desc(is.na(dep_time)), dep_time)
+```
+2.
+```{r}
+#2.Sort flights to find the most delayed flights. Find the flights that left earliest.
+arrange(flights, desc(dep_delay))
+arrange(flights, dep_time)
+```
+3.
+```{r}
+#3. Sort flights to find the fastest flights.
+arrange(flights, desc(distance/air_time))
+```
+4.
+```{r}
+#4.Which flights travelled the longest? Which travelled the shortest?
+arrange(flights, desc(distance))
+arrange(flights,distance)
+```
+5.4
+```{r}
+select(flights, year, month, day)
+select(flights, year:day)
+```
+
+```{r}
+#select except from year to day
+select(flights, -(year:day))
+```
+
+```{r}
+rename(flights, tail_num = tailnum)
+```
+
+```{r}
+select(flights, time_hour, air_time, everything())
+```
+5.4.1 Exercise
+```{r}
+flights[,c("dep_time", "dep_delay", "arr_time", "arr_delay")]
+subset(flights, select = c("dep_time", "dep_delay", "arr_time", "arr_delay"))
+select(flights, dep_time, dep_delay, arr_time, arr_delay)
+```
+2.
+```{r}
+# 2. What happens if you include the name of a variable multiple times in a select() call?
+select(flights, dep_time, dep_time, dep_time)
+```
+3.
+```{r}
+select(flights, one_of(c("dep_time", "dep_delay", "arr_time", "arr_delay")))
+vars <- c("year", "month", "day", "dep_delay", "arr_delay")
+select(flights, one_of(vars))
+```
+4.
+```{r}
+select(flights, contains("time", ignore.case = F))# R sensitive to capital and lowercase.
+```
+5.5
+```{r}
+flights_sml <- select(flights, 
+  year:day, 
+  ends_with("delay"), 
+  distance, 
+  air_time
+)
+mutate(flights_sml,
+  gain = arr_delay - dep_delay,
+  speed = distance / air_time * 60
+)
+```
+
+```{r}
+# can refer to variables just created.
+mutate(flights_sml,
+  gain = arr_delay - dep_delay,
+  hours = air_time / 60,
+  gain_per_hour = gain / hours
+)
+```
+```{r}
+#keep the new variables
+transmute(flights,
+  gain = arr_delay - dep_delay,
+  hours = air_time / 60,
+  gain_per_hour = gain / hours
+)
+```
+
+```{r}
+#calcuate hour and minutes
+transmute(flights,
+  dep_time,
+  hour = dep_time %/% 100,
+  minute = dep_time %% 100
+)
+```
+```{r}
+#offset
+(x <- 1:10)
+#>  [1]  1  2  3  4  5  6  7  8  9 10
+lag(x)
+#>  [1] NA  1  2  3  4  5  6  7  8  9
+lead(x)
+```
+
+```{r}
+x
+#>  [1]  1  2  3  4  5  6  7  8  9 10
+cumsum(x)
+#>  [1]  1  3  6 10 15 21 28 36 45 55
+cummean(x)
+#>  [1] 1.0 1.5 2.0 2.5 3.0 3.5 4.0 4.5 5.0 5.5
+#install.packages("RcppRoll")
+
+```
+
+```{r}
+#Ranking
+
+```
+5.5.2 Exercise
+```{r}
+#1.
+mutate(flights, dep_time_minutes=dep_time %/% 100*60 + dep_time %% 100, sched_dep_time_minutes=sched_dep_time %/% 100*60 + sched_dep_time %% 100)
+```
+
+```{r}
+#2.
+transmute(flights, air_time, arr_time - dep_time)# they are not the same
+transmute(flights, air_time, arr_time_dep_time = (arr_time %/% 100*60 + arr_time %% 100) - (dep_time %/% 100*60 + dep_time %% 100))# ?? time difference??
+```
+
+3.
+```{r}
+select(flights, contains("dep", ignore.case = F))
+#dep_delay = dep_time -sched_dep_time
+```
+4.
+```{r}
+arrange(flights, desc(min_rank(dep_delay)))
+```
+5.
+```{r}
+1:3 + 1:10
+```
+
+6.
+```{r}
+#cos(x)
+#sin(x)
+#tan(x)
+
+#acos(x)
+#asin(x)
+#atan(x)
+#atan2(y, x)
+
+#cospi(x)
+#sinpi(x)
+#tanpi(x)
+```
 
