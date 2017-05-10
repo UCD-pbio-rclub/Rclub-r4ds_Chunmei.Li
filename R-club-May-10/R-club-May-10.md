@@ -378,7 +378,7 @@ filter(flights, arr_delay >= 120 | dep_delay >= 120)
 
 ```r
 #Flew to Houston (IAH or HOU)
-filter(flights, dest == "IAH" | dest == "HOU")
+filter(flights, dest %in% c("IAH", "HOU"))
 ```
 
 ```
@@ -403,24 +403,24 @@ filter(flights, dest == "IAH" | dest == "HOU")
 
 ```r
 #Were operated by United, American, or Delta
-filter(flights, carrier == "UA" | carrier == "AA" | carrier == "DA")
+filter(flights, carrier %in% c("UA", "AA", "DL"))
 ```
 
 ```
-## # A tibble: 91,394 × 19
+## # A tibble: 139,504 × 19
 ##     year month   day dep_time sched_dep_time dep_delay arr_time
 ##    <int> <int> <int>    <int>          <int>     <dbl>    <int>
 ## 1   2013     1     1      517            515         2      830
 ## 2   2013     1     1      533            529         4      850
 ## 3   2013     1     1      542            540         2      923
-## 4   2013     1     1      554            558        -4      740
-## 5   2013     1     1      558            600        -2      753
-## 6   2013     1     1      558            600        -2      924
-## 7   2013     1     1      558            600        -2      923
-## 8   2013     1     1      559            600        -1      941
-## 9   2013     1     1      559            600        -1      854
-## 10  2013     1     1      606            610        -4      858
-## # ... with 91,384 more rows, and 12 more variables: sched_arr_time <int>,
+## 4   2013     1     1      554            600        -6      812
+## 5   2013     1     1      554            558        -4      740
+## 6   2013     1     1      558            600        -2      753
+## 7   2013     1     1      558            600        -2      924
+## 8   2013     1     1      558            600        -2      923
+## 9   2013     1     1      559            600        -1      941
+## 10  2013     1     1      559            600        -1      854
+## # ... with 139,494 more rows, and 12 more variables: sched_arr_time <int>,
 ## #   arr_delay <dbl>, carrier <chr>, flight <int>, tailnum <chr>,
 ## #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
 ## #   minute <dbl>, time_hour <dttm>
@@ -428,7 +428,7 @@ filter(flights, carrier == "UA" | carrier == "AA" | carrier == "DA")
 
 ```r
 #Departed in summer (July, August, and September)
-filter(flights, month == 7 | month == 8 | month == 9)
+filter(flights, month %in% c(7:9))
 ```
 
 ```
@@ -525,10 +525,10 @@ filter(flights, dep_time>=00 & dep_time <= 0600)
 ## #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
 ## #   minute <dbl>, time_hour <dttm>
 ```
-2.
+2.Another useful dplyr filtering helper is between(). What does it do? Can you use it to simplify the code needed to answer the previous challenges?
 
 ```r
-?between()
+?between()#This is a shortcut for x >= left & x <= right
 ```
 
 ```
@@ -562,7 +562,7 @@ filter(flights, between(dep_time,0,600))
 ## #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
 ## #   minute <dbl>, time_hour <dttm>
 ```
-3.
+3.How many flights have a missing dep_time? What other variables are missing? What might these rows represent?
 
 ```r
 sum(is.na(flights$dep_time))
@@ -595,7 +595,7 @@ filter(flights, is.na(dep_time))# dep_delay, arr_time, and arr_delay are missing
 ## #   origin <chr>, dest <chr>, air_time <dbl>, distance <dbl>, hour <dbl>,
 ## #   minute <dbl>, time_hour <dttm>
 ```
-4.
+4.Why is NA ^ 0 not missing? Why is NA | TRUE not missing? Why is FALSE & NA not missing? Can you figure out the general rule? (NA * 0 is a tricky counterexample!)
 
 ```r
 is.na(NA^0)
@@ -750,7 +750,7 @@ arrange(flights, desc(is.na(dep_time)), dep_time)
 
 ```r
 #2.Sort flights to find the most delayed flights. Find the flights that left earliest.
-arrange(flights, desc(dep_delay))
+arrange(flights, desc(dep_delay)) #
 ```
 
 ```
@@ -774,7 +774,7 @@ arrange(flights, desc(dep_delay))
 ```
 
 ```r
-arrange(flights, dep_time)
+arrange(flights, dep_time)#
 ```
 
 ```
@@ -993,48 +993,6 @@ select(flights, time_hour, air_time, everything())
 5.4.1 Exercise
 
 ```r
-flights[,c("dep_time", "dep_delay", "arr_time", "arr_delay")]
-```
-
-```
-## # A tibble: 336,776 × 4
-##    dep_time dep_delay arr_time arr_delay
-##       <int>     <dbl>    <int>     <dbl>
-## 1       517         2      830        11
-## 2       533         4      850        20
-## 3       542         2      923        33
-## 4       544        -1     1004       -18
-## 5       554        -6      812       -25
-## 6       554        -4      740        12
-## 7       555        -5      913        19
-## 8       557        -3      709       -14
-## 9       557        -3      838        -8
-## 10      558        -2      753         8
-## # ... with 336,766 more rows
-```
-
-```r
-subset(flights, select = c("dep_time", "dep_delay", "arr_time", "arr_delay"))
-```
-
-```
-## # A tibble: 336,776 × 4
-##    dep_time dep_delay arr_time arr_delay
-##       <int>     <dbl>    <int>     <dbl>
-## 1       517         2      830        11
-## 2       533         4      850        20
-## 3       542         2      923        33
-## 4       544        -1     1004       -18
-## 5       554        -6      812       -25
-## 6       554        -4      740        12
-## 7       555        -5      913        19
-## 8       557        -3      709       -14
-## 9       557        -3      838        -8
-## 10      558        -2      753         8
-## # ... with 336,766 more rows
-```
-
-```r
 select(flights, dep_time, dep_delay, arr_time, arr_delay)
 ```
 
@@ -1052,6 +1010,49 @@ select(flights, dep_time, dep_delay, arr_time, arr_delay)
 ## 8       557        -3      709       -14
 ## 9       557        -3      838        -8
 ## 10      558        -2      753         8
+## # ... with 336,766 more rows
+```
+
+```r
+select(flights, starts_with("dep_"), starts_with("arr_"))
+```
+
+```
+## # A tibble: 336,776 × 4
+##    dep_time dep_delay arr_time arr_delay
+##       <int>     <dbl>    <int>     <dbl>
+## 1       517         2      830        11
+## 2       533         4      850        20
+## 3       542         2      923        33
+## 4       544        -1     1004       -18
+## 5       554        -6      812       -25
+## 6       554        -4      740        12
+## 7       555        -5      913        19
+## 8       557        -3      709       -14
+## 9       557        -3      838        -8
+## 10      558        -2      753         8
+## # ... with 336,766 more rows
+```
+
+```r
+#select(flights, contains("dep_"), contains("arr_", ignore.case = F)) will have other variables containing ...
+select(flights, matches("^dep|arr_time|delay$"))#??
+```
+
+```
+## # A tibble: 336,776 × 5
+##    dep_time dep_delay arr_time sched_arr_time arr_delay
+##       <int>     <dbl>    <int>          <int>     <dbl>
+## 1       517         2      830            819        11
+## 2       533         4      850            830        20
+## 3       542         2      923            850        33
+## 4       544        -1     1004           1022       -18
+## 5       554        -6      812            837       -25
+## 6       554        -4      740            728        12
+## 7       555        -5      913            854        19
+## 8       557        -3      709            723       -14
+## 9       557        -3      838            846        -8
+## 10      558        -2      753            745         8
 ## # ... with 336,766 more rows
 ```
 2.
@@ -1077,7 +1078,7 @@ select(flights, dep_time, dep_time, dep_time)
 ## 10      558
 ## # ... with 336,766 more rows
 ```
-3.
+3.What does the one_of() function do? Why might it be helpful in conjunction with this vector?
 
 ```r
 select(flights, one_of(c("dep_time", "dep_delay", "arr_time", "arr_delay")))
@@ -1121,7 +1122,7 @@ select(flights, one_of(vars))
 ## 10  2013     1     1        -2         8
 ## # ... with 336,766 more rows
 ```
-4.
+4.Does the result of running the following code surprise you? How do the select helpers deal with case by default? How can you change that default?
 
 ```r
 select(flights, contains("time", ignore.case = F))# R sensitive to capital and lowercase.
@@ -1419,7 +1420,7 @@ select(flights, contains("dep", ignore.case = F))
 4.
 
 ```r
-arrange(flights, desc(min_rank(dep_delay)))
+arrange(flights, -min_rank(dep_delay))
 ```
 
 ```
@@ -1453,6 +1454,10 @@ arrange(flights, desc(min_rank(dep_delay)))
 
 ```
 ##  [1]  2  4  6  5  7  9  8 10 12 11
+```
+
+```r
+# add vector 1:3 with vector 1:10 one by one until there is no more number in the latter one.
 ```
 
 6.
