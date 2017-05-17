@@ -92,7 +92,7 @@ filter(df, is.na(x) | x > 1)
 1.
 ```{r}
 #Had an arrival delay of two or more hours
-filter(flights, arr_delay >= 120 | dep_delay >= 120)
+filter(flights, arr_delay >= 120)
 #Flew to Houston (IAH or HOU)
 filter(flights, dest %in% c("IAH", "HOU"))
 #Were operated by United, American, or Delta
@@ -104,7 +104,7 @@ filter(flights, dep_delay <= 0 & arr_delay > 120)
 #Were delayed by at least an hour, but made up over 30 minutes in flight
 filter(flights, dep_delay >= 60 &  dep_delay - arr_delay > 30)
 #Departed between midnight and 6am (inclusive)
-filter(flights, dep_time>=00 & dep_time <= 0600)
+filter(flights, dep_time==2400 & dep_time <= 0600)# summary flights, the max of dep_time is 2400.
 
 ```
 2.Another useful dplyr filtering helper is between(). What does it do? Can you use it to simplify the code needed to answer the previous challenges?
@@ -120,10 +120,10 @@ filter(flights, is.na(dep_time))# dep_delay, arr_time, and arr_delay are missing
 ```
 4.Why is NA ^ 0 not missing? Why is NA | TRUE not missing? Why is FALSE & NA not missing? Can you figure out the general rule? (NA * 0 is a tricky counterexample!)
 ```{r}
-is.na(NA^0)
+is.na(NA^0) # NA is an unkown number??
 is.na(NA|TRUE)# because NA|TRUE is TRUE
-is.na(FALSE&NA)
-is.na(NA*0)
+is.na(FALSE&NA)# always FALSE
+is.na(NA*0)# inf*0
 ```
 5.3
 ```{r}
@@ -197,11 +197,11 @@ select(flights, dep_time, dep_time, dep_time)
 ```{r}
 select(flights, one_of(c("dep_time", "dep_delay", "arr_time", "arr_delay")))
 vars <- c("year", "month", "day", "dep_delay", "arr_delay")
-select(flights, one_of(vars))
+select(flights, one_of(vars)) #is.in
 ```
 4.Does the result of running the following code surprise you? How do the select helpers deal with case by default? How can you change that default?
 ```{r}
-select(flights, contains("time", ignore.case = F))# R sensitive to capital and lowercase.
+select(flights, contains("time", ignore.case = F))# R is sensitive to capital and lowercase.
 ```
 5.5
 ```{r}
@@ -282,10 +282,12 @@ transmute(flights, air_time, arr_time_dep_time = (arr_time %/% 100*60 + arr_time
 ```{r}
 select(flights, contains("dep", ignore.case = F))
 #dep_delay = dep_time -sched_dep_time
+#need to convert to minutes
 ```
 4.
 ```{r}
-arrange(flights, -min_rank(dep_delay))
+mutate(flights, -min_rank(dep_delay))
+arrange(flights, min_rank(desc(dep_deplay)))
 ```
 5.
 ```{r}
@@ -295,6 +297,7 @@ arrange(flights, -min_rank(dep_delay))
 
 6.
 ```{r}
+?Trig
 #cos(x)
 #sin(x)
 #tan(x)
@@ -307,5 +310,10 @@ arrange(flights, -min_rank(dep_delay))
 #cospi(x)
 #sinpi(x)
 #tanpi(x)
+```
+
+```{r}
+x <- 1:10
+
 ```
 
