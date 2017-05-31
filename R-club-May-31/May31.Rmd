@@ -2,29 +2,227 @@
 title: "May31"
 author: "Chunmei Li"
 date: "2017年5月30日"
-output: html_document
+output: 
+  html_document: 
+    keep_md: yes
 ---
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+7.6
+```{r}
+library(tidyverse)
+ggplot(data = faithful) + 
+  geom_point(mapping = aes(x = eruptions, y = waiting))
 ```
 
-## R Markdown
+```{r}
+#???
+library(modelr)
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+mod <- lm(log(price) ~ log(carat), data = diamonds)
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+diamonds2 <- diamonds %>% 
+  add_residuals(mod) %>% 
+  mutate(resid = exp(resid))
 
-```{r cars}
-summary(cars)
+ggplot(data = diamonds2) + 
+  geom_point(mapping = aes(x = carat, y = resid))
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+ggplot(data = diamonds2) + 
+  geom_boxplot(mapping = aes(x = cut, y = resid))
+```
+7.7
+```{r}
+ggplot(data = faithful, mapping = aes(x = eruptions)) + 
+  geom_freqpoly(binwidth = 0.25)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+ggplot(faithful, aes(eruptions)) + 
+  geom_freqpoly(binwidth = 0.25)
+```
+
+```{r}
+diamonds %>% 
+  count(cut, clarity) %>% 
+  ggplot(aes(clarity, cut, fill = n)) + 
+    geom_tile()
+```
+8.1
+Press Cmd/Ctrl + Shift + F10 to restart RStudio.
+Press Cmd/Ctrl + Shift + S to rerun the current script.
+8.2
+ always using the Linux/Mac style with forward slashes.
+ never use absolute paths in your scripts.
+ 
+ 
+ 
+```{r}
+library(tidyverse)
+
+ggplot(diamonds, aes(carat, price)) + 
+  geom_hex()
+ggsave("diamonds.pdf")
+
+write_csv(diamonds, "diamonds.csv")
+```
+
+
+Create an RStudio project for each data analysis project.
+
+Keep data files there; we’ll talk about loading them into R in data import.
+
+Keep scripts there; edit them, run them in bits or as a whole.
+
+Save your outputs (plots and cleaned data) there.
+
+Only ever use relative paths, not absolute paths.
+
+
+10.
+
+```{r}
+as_tibble(iris)
+```
+
+```{r}
+tibble(
+  x = 1:5, 
+  y = 1, 
+  z = x ^ 2 + y
+)
+```
+
+```{r}
+tb <- tibble(
+  `:)` = "smile", 
+  ` ` = "space",
+  `2000` = "number"
+)
+tb
+```
+
+```{r}
+tribble(
+  ~x, ~y, ~z,
+  #--|--|----
+  "a", 2, 3.6,
+  "b", 1, 8.5
+)
+```
+
+```{r}
+tibble(
+  a = lubridate::now() + runif(1e3) * 86400,
+  b = lubridate::today() + runif(1e3) * 30,
+  c = 1:1e3,
+  d = runif(1e3),
+  e = sample(letters, 1e3, replace = TRUE)
+)
+```
+
+```{r}
+nycflights13::flights %>% 
+  print(n = 10, width = Inf)
+```
+
+```{r}
+nycflights13::flights %>% 
+  View()
+```
+
+```{r}
+df <- tibble(
+  x = runif(5),
+  y = rnorm(5)
+)
+df
+#$ and [[. [[ can extract by name or position; $ only extracts by name but is a little less typing.
+df$x
+df[["x"]]
+df[[1]]
+```
+
+```{r}
+#use these in a pipe, you’ll need to use the special placeholder .:
+df %>% .$x
+df %>% .[["x"]]
+```
+
+```{r}
+class(as.data.frame(tb))
+```
+
+10.5 Exercise
+1.
+```{r}
+mtcars
+class(mtcars)
+class(nycflights13::flights)
+```
+2.
+```{r}
+df <- data.frame(abc = 1, xyz = "a")
+df
+df$x
+df[, "xyz"]
+df[, c("abc", "xyz")]
+```
+
+```{r}
+#tibble
+df1<- tibble(abc=1, xyz="a")
+df1
+df1$x
+df1[,"xyz"]
+df1[,c("abc", "xyz")]
+```
+3.
+$mpg or [["mpg"]]
+
+4.
+```{r}
+annoying <- tibble(
+  `1` = 1:10,
+  `2` = `1` * 2 + rnorm(length(`1`))
+)
+```
+
+1.
+```{r}
+annoying$`1`
+#or
+annoying[["1"]]
+```
+
+2.
+```{r}
+ggplot(annoying, aes(x=`1`, y=`2`))+geom_point()
+
+
+```
+
+```{r}
+annoying <- annoying %>%
+  mutate(`3`=`2`/`1`)
+annoying
+```
+4.
+```{r}
+annoying <- rename(annoying, one = `1`, two = `2`, three = `3`)
+annoying
+```
+5.
+```{r}
+?tibble::enframe
+#Converting atomic vectors to data frames
+
+#enframe(x, name = "name", value = "value")
+```
+
+6.
+
+```{r}
+#???
+```
+
