@@ -1,0 +1,358 @@
+---
+title: "Exploratory Data Analysis"
+author: "Chunmei Li"
+date: "2017年5月23日"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x = cut))
+```
+
+```{r}
+diamonds %>% 
+  count(cut)
+```
+
+```{r}
+ggplot(data = diamonds) +
+  geom_histogram(mapping = aes(x = carat), binwidth = 0.5)
+```
+
+```{r}
+diamonds %>% 
+  count(cut_width(carat, 0.5))
+```
+
+```{r}
+smaller <- diamonds %>% 
+  filter(carat < 3)
+  
+ggplot(data = smaller, mapping = aes(x = carat)) +
+  geom_histogram(binwidth = 0.1)
+```
+
+```{r}
+ggplot(data = smaller, mapping = aes(x = carat, colour = cut)) +
+  geom_freqpoly(binwidth = 0.1)
+```
+
+```{r}
+ggplot(data = smaller, mapping = aes(x = carat)) +
+  geom_histogram(binwidth = 0.01)
+```
+
+```{r}
+ggplot(data = faithful, mapping = aes(x = eruptions)) + 
+  geom_histogram(binwidth = 0.25)
+```
+
+```{r}
+ggplot(diamonds) + 
+  geom_histogram(mapping = aes(x = y), binwidth = 0.5)# y is a variable in diamonds
+```
+
+```{r}
+ggplot(diamonds) + 
+  geom_histogram(mapping = aes(x = y), binwidth = 0.5) +
+  coord_cartesian(ylim = c(0, 50))
+```
+
+```{r}
+unusual <- diamonds %>% 
+  filter(y < 3 | y > 20) %>% 
+  select(price, x, y, z) %>%
+  arrange(y)
+unusual
+```
+7.3.4 Exercise
+1.
+```{r}
+#x distribution
+p1 <- ggplot(diamonds) + 
+  geom_histogram(mapping = aes(x = x), binwidth = 0.5) 
+p1
+p1+coord_cartesian(ylim = c(0, 50))
+# x=0
+
+p2 <- ggplot(diamonds) + 
+  geom_histogram(mapping = aes(x = z), binwidth = 0.5)
+p2
+p2+coord_cartesian(ylim = c(0, 50))
+# z=0, z>30
+```
+2.
+```{r}
+p3 <- ggplot(diamonds) + 
+  geom_histogram(mapping = aes(x = price), binwidth = 100)
+p3
+p3 + coord_cartesian(xlim = c(0, 5000))
+p3 + coord_cartesian(xlim = c(1000, 2000)) # seems like no price 1500 
+p3 + coord_cartesian(xlim = c(0, 1000))
+```
+
+3.
+```{r}
+ p4 <-ggplot(diamonds) + 
+  geom_histogram(mapping = aes(x = carat), binwidth = 0.01)
+ p4
+p4 + coord_cartesian(xlim = c(0.98, 1.00), ylim = c(1000,2000)) # about 1500 are 1.00
+p4 + coord_cartesian(xlim = c(0.98, 1.00), ylim = c(0,100)) # about 25 are 0.99
+#why? different measuring tools, like different balance have different  
+```
+
+4.
+ 
+ 
+```{r}
+p4 + coord_cartesian() # nothing happened when only have coor_cartesian
+ggplot(diamonds) + 
+  geom_histogram(mapping = aes(x = carat))+coord_cartesian(xlim = c(0.98, 1.00), ylim = c(1000,2000))# without binwidth, 
+
+# don't understand....What happens if you try and zoom so only half a bar shows?
+```
+
+
+```{r}
+diamonds2 <- diamonds %>% 
+  mutate(y = ifelse(y < 3 | y > 20, NA, y))
+diamonds2
+```
+
+```{r}
+ggplot(data = diamonds2, mapping = aes(x = x, y = y)) + 
+  geom_point()
+```
+
+```{r}
+ggplot(data = diamonds2, mapping = aes(x = x, y = y)) + 
+  geom_point(na.rm = TRUE)
+```
+
+```{r}
+nycflights13::flights %>% 
+  mutate(
+    cancelled = is.na(dep_time),
+    sched_hour = sched_dep_time %/% 100,
+    sched_min = sched_dep_time %% 100,
+    sched_dep_time = sched_hour + sched_min / 60
+  ) %>% 
+  ggplot(mapping = aes(sched_dep_time)) + 
+    geom_freqpoly(mapping = aes(colour = cancelled), binwidth = 1/4)
+```
+
+7.4.1 Exercise
+1.
+
+```{r}
+#missing values will be removed in histogram.
+ggplot(data = diamonds2, aes(y)) + 
+  geom_bar() #remove rows containing non-finite values
+#what's the difference between missing values and non-finite values
+```
+2.
+```{r}
+# na.rm = TURE remove the missing values in mean () and sum(), otherwise the mean and sum would be NA.
+
+mean(diamonds2$y)
+mean(diamonds2$y, na.rm=T)
+```
+
+7.5
+```{r}
+ggplot(data = diamonds, mapping = aes(x = price)) + 
+  geom_freqpoly(mapping = aes(colour = cut), binwidth = 500)
+```
+
+```{r}
+ggplot(diamonds) + 
+  geom_bar(mapping = aes(x = cut))
+```
+
+```{r}
+ggplot(data = diamonds, mapping = aes(x = price, y = ..density..)) + 
+  geom_freqpoly(mapping = aes(colour = cut), binwidth = 500)
+```
+
+```{r}
+ggplot(data = diamonds, mapping = aes(x = cut, y = price)) +
+  geom_boxplot()
+```
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = class, y = hwy)) +
+  geom_boxplot()
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_boxplot(mapping = aes(x = reorder(class, hwy, FUN = median), y = hwy))
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_boxplot(mapping = aes(x = reorder(class, hwy, FUN = median), y = hwy)) +
+  coord_flip()
+```
+
+7.5.1.1 Exercise
+
+1.
+```{r}
+nycflights13::flights %>% 
+  mutate(
+    cancelled = is.na(dep_time),
+    sched_hour = sched_dep_time %/% 100,
+    sched_min = sched_dep_time %% 100,
+    sched_dep_time = sched_hour + sched_min / 60
+  ) %>% 
+  ggplot(mapping = aes(x=sched_dep_time, y=..density..)) + 
+    geom_freqpoly(mapping = aes(colour = cancelled), binwidth = 1/4)
+```
+
+2.
+```{r}
+#carat
+ggplot(diamonds2, aes(x=carat, y=price)) + geom_point()
+ggplot(diamonds2, aes(x=cut, y=carat)) + geom_boxplot()
+#Why does the combination of those two relationships lead to lower quality diamonds being more expensive????
+```
+
+```{r}
+#install.packages("ggstance")
+library(ggstance)
+ggplot(data=mpg, aes(x=hwy, y = reorder(class, hwy, FUN = median))) + geom_boxploth()
+#the same??
+```
+
+4.
+```{r}
+#install.packages("lvplot")
+library(lvplot)
+ggplot(diamonds2, aes(x=cut, y=price)) + geom_lv()
+```
+5.
+```{r}
+ggplot(diamonds2, aes(x=cut, y=price)) + geom_violin()
+ggplot(diamonds2) + geom_freqpoly(aes(x=price, y= ..density.., color=cut)) # 
+```
+
+6.
+```{r}
+#install.packages("ggbeeswarm")
+#library(ggbeeswarm)
+#ggplot(smaller, aes(x=cut, y=price)) + geom_point(position = "jitter")
+#ggplot(smaller, aes(x=cut, y=price)) + geom_beeswarm()
+```
+
+7.5.2
+```{r}
+ggplot(data = diamonds) +
+  geom_count(mapping = aes(x = cut, y = color))
+```
+
+```{r}
+diamonds %>% 
+  count(color, cut)
+```
+
+```{r}
+diamonds %>% 
+  count(color, cut) %>%  
+  ggplot(mapping = aes(x = color, y = cut)) +
+    geom_tile(mapping = aes(fill = n))
+```
+
+```{r}
+#install.packages("d3heatmap")
+```
+
+7.5.2.1 Exercise
+1.
+```{r}
+
+```
+
+2.
+
+```{r}
+nycflights13::flights %>% 
+  group_by(year, month, dest) %>%
+  summarise(mean = mean(arr_delay, na.rm=T)) %>%
+  arrange(mean)%>%
+  ggplot(mapping = aes(x = as.factor(month), y = dest)) +
+    geom_tile(mapping = aes(fill = mean))
+  # too many destinations. month is numeric??
+
+```
+
+3.
+```{r}
+diamonds %>% 
+  count(color, cut) %>%  
+  ggplot(mapping = aes(x = cut, y = color)) +
+    geom_tile(mapping = aes(fill = n))
+# why?
+```
+
+7.5.3
+```{r}
+ggplot(data = diamonds) +
+  geom_point(mapping = aes(x = carat, y = price))
+```
+
+```{r}
+ggplot(data = diamonds) + 
+  geom_point(mapping = aes(x = carat, y = price), alpha = 1 / 100)
+```
+
+```{r}
+#install.packages("hexbin")
+library(hexbin)
+ggplot(data = smaller) +
+  geom_bin2d(mapping = aes(x = carat, y = price))
+ggplot(data = smaller) +
+  geom_hex(mapping = aes(x = carat, y = price))
+```
+
+```{r}
+ggplot(data = smaller, mapping = aes(x = carat, y = price)) + 
+  geom_boxplot(mapping = aes(group = cut_width(carat, 0.1)))
+```
+
+```{r}
+ggplot(data = smaller, mapping = aes(x = carat, y = price)) + 
+  geom_boxplot(mapping = aes(group = cut_number(carat, 20)))
+```
+7.5.3.1 Exercise
+1.
+```{r}
+ggplot(data = smaller, mapping = aes(x = price)) + 
+  geom_freqpoly(mapping = aes(group = cut_number(price, 20), color=cut))# why can't color each cut
+```
+2.
+```{r}
+ggplot(data = smaller, mapping = aes(x = price, y = carat)) + 
+  geom_boxplot(mapping = aes(group = cut_number(price, 20)))
+ggplot(data = smaller, mapping = aes(x = price, y = carat)) + 
+  geom_boxplot(mapping = aes(group = cut_width(price, 500)))
+
+```
+
+3.
+```{r}
+
+```
+
+4.
+```{r}
+ggplot(data = smaller, mapping = aes(x = price, y = carat))+geom_hex()+facet_grid(~cut)
+```
+
