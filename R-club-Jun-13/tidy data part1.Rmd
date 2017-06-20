@@ -1,0 +1,196 @@
+---
+title: "tidy data part1"
+author: "Chunmei Li"
+date: "2017年6月13日"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+table1
+```
+
+```{r}
+table2
+```
+```{r}
+table3
+```
+
+```{r}
+table4a
+```
+```{r}
+table4b
+```
+
+```{r}
+table1 %>% 
+  mutate(rate = cases / population * 10000)
+```
+```{r}
+table1 %>% 
+  count(year, wt = cases)
+```
+
+```{r}
+library(ggplot2)
+ggplot(table1, aes(year, cases)) + 
+  geom_line(aes(group = country), colour = "grey50") + 
+  geom_point(aes(colour = country))
+```
+
+
+12.2.1 Exercise
+1.
+
+table1: each variable has own column, each observation has own row, each value has own cell.
+table2: type contains 2 variables, cases and populations; each observation has own row
+table3: rate contains 2 variables, cases and populations which were not shown in table;
+table4: variable cases and populations are into table4a and table4b, separately.
+
+
+2.
+
+
+
+
+
+3.
+
+```{r}
+table2 %>% 
+  filter(type == "cases") %>%
+  ggplot(aes(year, count)) + 
+  geom_line(aes(group = country), colour = "grey50") + 
+  geom_point(aes(colour = country))
+```
+
+```{r}
+table4a %>% 
+  gather(`1999`, `2000`, key = "year", value = "cases")
+```
+
+```{r}
+table4b %>% 
+  gather(`1999`, `2000`, key = "year", value = "population")
+```
+
+```{r}
+tidy4a <- table4a %>% 
+  gather(`1999`, `2000`, key = "year", value = "cases")
+tidy4b <- table4b %>% 
+  gather(`1999`, `2000`, key = "year", value = "population")
+left_join(tidy4a, tidy4b)
+```
+
+```{r}
+spread(table2, key = type, value = count)
+```
+12.3 Exercise
+1.
+```{r}
+stocks <- tibble(
+  year   = c(2015, 2015, 2016, 2016),
+  half  = c(   1,    2,     1,    2),
+  return = c(1.88, 0.59, 0.92, 0.17)
+)
+stocks %>% 
+  spread(year, return) %>% 
+  gather("year", "return", `2015`:`2016`)
+```
+year became into character, should be numeric.
+
+```{r}
+stocks %>% 
+  spread(year, return) %>% 
+  gather("year", "return", `2015`:`2016`, convert = TRUE)
+```
+
+2.
+
+1999 and 2000 are non-syntactic names in R, and need to be surrounded with ``.
+
+
+3.
+
+
+
+
+
+4.
+
+```{r}
+preg <- tribble(
+  ~pregnant, ~male, ~female,
+  "yes",     NA,    10,
+  "no",      20,    12
+)
+```
+
+yes.
+
+```{r}
+preg%>%
+  gather(male, female, key="gender", value=cases)
+```
+
+```{r}
+preg %>% gather(male, female, key="gender", value=cases) %>%
+  spread(key = pregnant, value=cases)
+```
+
+
+```{r}
+table3 %>% 
+  separate(rate, into = c("cases", "population"))
+```
+
+```{r}
+table3 %>% 
+  separate(rate, into = c("cases", "population"), sep = "/")
+```
+
+```{r}
+table3 %>% 
+  separate(rate, into = c("cases", "population"), convert = TRUE)
+```
+
+```{r}
+table3 %>% 
+  separate(year, into = c("century", "year"), sep = 2)
+```
+
+```{r}
+table5 %>% 
+  unite(new, century, year)
+```
+
+```{r}
+table5 %>% 
+  unite(new, century, year, sep = "")
+```
+
+12.4.3 Exercise
+
+1.
+
+```{r}
+tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>% 
+  separate(x, c("one", "two", "three"), extra="merge")
+```
+```{r}
+tibble(x = c("a,b,c", "d,e,f,g", "h,i,j")) %>% 
+  separate(x, c("one", "two", "three", "four"), fill="left")
+```
+
+
+2.remove	
+If TRUE, remove input column from output data frame.
+
+
