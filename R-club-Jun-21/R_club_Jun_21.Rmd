@@ -1,0 +1,199 @@
+---
+title: "tidy_data_continue_and_ralational_data_part1"
+author: "Chunmei Li"
+date: "2017年6月19日"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+stocks <- tibble(
+  year   = c(2015, 2015, 2015, 2015, 2016, 2016, 2016),
+  qtr    = c(   1,    2,    3,    4,    2,    3,    4),
+  return = c(1.88, 0.59, 0.35,   NA, 0.92, 0.17, 2.66)
+)
+stocks
+```
+
+```{r}
+stocks %>% 
+  spread(year, return)
+```
+
+```{r}
+stocks %>% 
+  spread(year, return) %>% 
+  gather(year, return, `2015`:`2016`, na.rm = TRUE)
+```
+
+```{r}
+stocks %>% 
+  complete(year, qtr)
+```
+
+```{r}
+treatment <- tribble(
+  ~ person,           ~ treatment, ~response,
+  "Derrick Whitmore", 1,           7,
+  NA,                 2,           10,
+  NA,                 3,           9,
+  "Katherine Burke",  1,           4
+)
+
+treatment
+```
+```{r}
+treatment %>% 
+  fill(person)
+```
+
+12.5.1 Exercise
+
+1.
+```{r}
+?spread
+
+#If set, missing values will be replaced with this value. Note that there are two types of missingness in the input: explicit missing values (i.e. NA), and implicit missings, rows that simply aren't present. Both types of missing value will be replaced by fill.
+stocks %>% 
+  spread(year, return, fill=1)
+
+```
+
+```{r}
+?complete
+
+#A named list that for each variable supplies a single value to use instead of NA for missing combinations.
+#list??
+stocks %>% 
+  complete(year, qtr, fill=list(2))
+```
+
+```{r}
+who
+```
+
+```{r}
+who1 <- who %>% 
+  gather(new_sp_m014:newrel_f65, key = "key", value = "cases", na.rm = TRUE)
+who1
+```
+
+```{r}
+who1 %>% 
+  count(key)
+```
+
+```{r}
+who2 <- who1 %>% 
+  mutate(key = stringr::str_replace(key, "newrel", "new_rel"))
+who2
+```
+
+```{r}
+who3 <- who2 %>% 
+  separate(key, c("new", "type", "sexage"), sep = "_")
+who3
+```
+
+```{r}
+who3 %>% 
+  count(new)
+
+#all are new.
+```
+
+```{r}
+who4 <- who3 %>% 
+  select(-new, -iso2, -iso3)
+who4
+```
+
+```{r}
+who5 <- who4 %>% 
+  separate(sexage, c("sex", "age"), sep = 1)
+who5
+```
+
+```{r}
+who %>%
+  gather(code, value, new_sp_m014:newrel_f65, na.rm = TRUE) %>% 
+  mutate(code = stringr::str_replace(code, "newrel", "new_rel")) %>%
+  separate(code, c("new", "var", "sexage")) %>% 
+  select(-new, -iso2, -iso3) %>% 
+  separate(sexage, c("sex", "age"), sep = 1)
+```
+
+12.6.1 Exercise
+
+1. don't know.
+
+
+2. 
+```{r}
+who %>%
+  gather(code, value, new_sp_m014:newrel_f65, na.rm = TRUE) %>% 
+  #mutate(code = stringr::str_replace(code, "newrel", "new_rel")) %>%
+  separate(code, c("new", "var", "sexage")) %>% 
+  select(-new, -iso2, -iso3) %>% 
+  separate(sexage, c("sex", "age"), sep = 1)
+
+#warning message
+who %>%
+  gather(code, value, new_sp_m014:newrel_f65, na.rm = TRUE) %>% 
+  #mutate(code = stringr::str_replace(code, "newrel", "new_rel")) %>%
+  separate(code, c("new", "var", "sexage")) %>% 
+  filter(new=="newrel")
+
+```
+
+
+3.
+
+```{r}
+select(who3, country, iso2, iso3)
+
+#??
+```
+
+4.
+
+```{r}
+who5 %>%
+  group_by(country, year, sex) %>%
+  summarise(totalTB=sum(cases)) %>%
+  ggplot(
+    
+  )+geom_point(aes(x=year, y=totalTB, color=sex))
+```
+
+
+```{r}
+library(tidyverse)
+library(nycflights13)
+```
+
+13.2 Exercise
+
+1.
+
+name of each plane, tailnum;
+origin and dest
+
+combine flights with planes and airports.
+
+2. 
+
+origin in weather is connected with faa in airpors.
+
+3.
+
+the year month day of origin and dest in flights are included in year month day of locations weather.
+
+4.
+
+the special dates are connected with year month day in flights.
