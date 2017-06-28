@@ -1,0 +1,394 @@
+---
+title: "R-club-Jun-28"
+author: "Chunmei Li"
+date: "2017年6月27日"
+output: 
+  html_document: 
+    keep_md: yes
+---
+```{r}
+memory.limit(size=30000)
+```
+
+```{r}
+library(tidyverse)
+library(nycflights13)
+```
+
+```{r}
+planes
+```
+
+```{r}
+flights
+```
+
+```{r}
+planes %>% 
+  count(tailnum) %>% 
+  filter(n > 1)
+```
+
+```{r}
+weather %>% 
+  count(year, month, day, hour, origin) %>% 
+  filter(n > 1)
+```
+
+```{r}
+flights %>% 
+  count(year, month, day, flight) %>% 
+  filter(n > 1)
+```
+
+```{r}
+flights %>% 
+  count(year, month, day, tailnum) %>% 
+  filter(n > 1)
+```
+
+13.3.1 Exercise
+
+1.
+```{r}
+flights %>%
+  mutate(flights_No = row_number())
+```
+2.
+```{r}
+Lahman::Batting
+```
+
+```{r}
+Lahman::Batting %>%
+  count(playerID)
+```
+```{r}
+Lahman::Batting %>%
+  count(playerID, yearID) %>%
+  filter(n>1)
+```
+
+```{r}
+Lahman::Batting %>%
+  count(playerID, yearID, stint) %>%
+  filter(n>1)
+```
+2.
+```{r}
+#install.packages("babynames")
+library(babynames)
+babynames::babynames
+```
+```{r}
+babynames::babynames %>%
+  group_by(year, sex, name) %>%
+  filter(n()>1)
+```
+3.
+```{r}
+#install.packages("nasaweather")
+library(nasaweather)
+?nasaweather::atmos
+nasaweather::atmos %>%
+  count(lat, long, year, month) %>%
+  filter(n>1)
+```
+4.
+```{r}
+#install.packages("fueleconomy")
+library(fueleconomy)
+fueleconomy::vehicles
+?fueleconomy::vehicles
+```
+
+```{r}
+fueleconomy::vehicles%>%
+  count(id)%>%
+  filter(n>1)
+```
+
+5.
+```{r}
+library(ggplot2)
+?diamonds
+diamonds%>%
+  count(price,carat,cut,color,clarity,x,y,z,depth)%>%
+  filter(n>1)
+ #??? 
+```
+
+3.
+```{r}
+Lahman::Batting #playerID, yearID, stint is primary key; playerID is the foreign key in Master
+Lahman::Master%>%
+  count(playerID)%>%
+  filter(n>1)
+Lahman::Salaries %>%
+  count(yearID,teamID,lgID, playerID)%>%
+  filter(n>1)# primary key: yearID, teamID, lgID, playerID; playerID is foreign key in Master
+
+Lahman::Managers
+Lahman::Managers %>%
+  count(playerID,yearID,inseason) %>%
+  filter(n>1) #playerID, yearID, inseason is primary key, playerID is foreign key in master.
+
+Lahman::AwardsManagers
+Lahman::AwardsManagers %>%
+  count(playerID, awardID, yearID) %>%
+  filter(n>1) #primaryID: playerID, awardID, yearID; foreign ID : playerID in Master; 
+```
+
+```{r}
+Lahman::Batting 
+Lahman::Pitching 
+Lahman::Fielding 
+```
+
+
+13.4
+
+```{r}
+flights2 <- flights %>% 
+  select(year:day, hour, origin, dest, tailnum, carrier)
+flights2
+```
+
+```{r}
+flights2 %>%
+  select(-origin, -dest) %>% 
+  left_join(airlines, by = "carrier")
+```
+
+```{r}
+flights2 %>%
+  select(-origin, -dest) %>% 
+  mutate(name = airlines$name[match(carrier, airlines$carrier)])
+```
+
+```{r}
+x <- tribble(
+  ~key, ~val_x,
+     1, "x1",
+     2, "x2",
+     3, "x3"
+)
+y <- tribble(
+  ~key, ~val_y,
+     1, "y1",
+     2, "y2",
+     4, "y3"
+)
+```
+
+```{r}
+x %>% 
+  inner_join(y, by = "key")
+```
+
+```{r}
+x <- tribble(
+  ~key, ~val_x,
+     1, "x1",
+     2, "x2",
+     2, "x3",
+     1, "x4"
+)
+y <- tribble(
+  ~key, ~val_y,
+     1, "y1",
+     2, "y2"
+)
+left_join(x, y, by = "key")
+```
+
+```{r}
+x <- tribble(
+  ~key, ~val_x,
+     1, "x1",
+     2, "x2",
+     2, "x3",
+     3, "x4"
+)
+y <- tribble(
+  ~key, ~val_y,
+     1, "y1",
+     2, "y2",
+     2, "y3",
+     3, "y4"
+)
+left_join(x, y, by = "key")
+```
+
+```{r}
+flights2 %>% 
+  left_join(weather)
+```
+
+```{r}
+flights2 %>% 
+  left_join(planes, by = "tailnum")
+```
+
+```{r}
+flights2 %>% 
+  left_join(airports, c("dest" = "faa"))
+```
+
+```{r}
+flights2 %>% 
+  left_join(airports, c("origin" = "faa"))
+```
+
+13.4.6
+1.
+```{r}
+flights3 <- flights %>%
+  group_by(dest) %>%
+  mutate(aver_delay=mean(arr_delay,na.rm=T)) %>%
+  left_join(airports, c("dest"="faa"))
+flights3
+```
+
+```{r}
+airports %>%
+  semi_join(flights, c("faa" = "dest")) %>%
+  ggplot(aes(lon, lat)) +
+    borders("state") +
+    geom_point() +
+    coord_quickmap()
+```
+```{r}
+ ggplot(flights3, aes(x=lon, y=lat,color=aver_delay)) +
+    borders("state") +
+    geom_point() +
+    coord_quickmap()
+```
+
+2.
+
+```{r}
+flights%>%
+  left_join(airports,c("origin"="faa"))%>%
+  left_join(airports, c("dest"="faa"))
+```
+
+3.
+```{r}
+?planes
+?flights
+flights %>%
+  group_by(tailnum) %>%
+  mutate(mean_delay=mean(arr_delay, na.rm=T)) %>%
+  inner_join(planes, by="tailnum") %>%
+  ggplot(aes(x=year.y, y=mean_delay))+geom_point()
+```
+4.
+
+```{r}
+?weather
+flights %>%
+  inner_join(weather, c("year"="year","month"="month", "day"="day", "origin"="origin", "hour"= "hour")) %>%
+  group_by(visib) %>%
+  mutate(mean_dep_delay=mean(dep_delay, na.rm=T)) %>%
+  ggplot(aes(x=visib, y=mean_dep_delay), )+geom_point()+geom_line()
+```
+5.
+```{r}
+flights %>%
+  filter(year==2013& month==6&day==13)
+```
+
+```{r}
+#two derechos occurred across different areas of the Eastern United States
+flights %>%
+  filter(year==2013& month==6&day==13)%>%
+  group_by(dest) %>%
+  mutate(mean_delay=mean(arr_delay,na.rm=T))%>%
+  inner_join(airports, c("dest" = "faa")) %>%
+  ggplot(aes(x=lon, y=lat, size=mean_delay)) +
+    borders("state") +
+    geom_point() +
+    coord_quickmap()
+```
+
+13.4.7
+```{r}
+top_dest <- flights %>%
+  count(dest, sort = TRUE) %>%
+  head(10)
+top_dest
+```
+
+```{r}
+flights %>% 
+  filter(dest %in% top_dest$dest)
+```
+
+```{r}
+flights %>% 
+  semi_join(top_dest)
+```
+
+```{r}
+flights %>%
+  anti_join(planes, by = "tailnum") %>%
+  count(tailnum, sort = TRUE)
+```
+13.5.1 Exercise
+1.
+```{r}
+flights %>%
+  anti_join(planes, by = "tailnum") %>%
+  filter(is.na(tailnum)==T)
+# cancelled flights??
+```
+
+2.
+```{r}
+flights_100 <- flights %>%
+  semi_join(planes, by="tailnum") %>%
+  count(tailnum, sort=T) %>%
+  filter(n>=100)
+flights_100
+flights %>%
+  semi_join(flights_100)
+```
+
+3.
+```{r}
+?fueleconomy::vehicles
+?fueleconomy::common
+fueleconomy::common %>%
+  group_by(make, model) %>%
+  filter(n()>1) #make and model is primary key
+fueleconomy::vehicles %>%
+  semi_join(fueleconomy::common, by=c("make", "model"))
+```
+
+4.
+```{r}
+flights %>%
+  group_by(year, month, day) %>%
+  mutate(mean_delay=mean(arr_delay, na.rm=T))
+```
+
+5.
+```{r}
+anti_join(flights, airports, by = c("dest" = "faa"))
+#flights going to the airports those don't exist in airports data.frame 
+```
+
+```{r}
+anti_join(airports, flights, by = c("faa" = "dest"))
+# airports where those flights didn't fly to.
+```
+6.
+```{r}
+?planes
+?airlines
+
+flights %>%
+  select(carrier, tailnum)
+```
+
